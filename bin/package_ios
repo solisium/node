@@ -1,0 +1,46 @@
+#!/bin/bash
+
+###########################################################################
+# Packaging script which creates iOS framework (Swift compatible).
+#
+# Usage:
+#> bin/package_ios <architecture>
+#
+# Package (specific architecture: arm64, amd64):
+#> bin/package_ios arm64
+
+set -e
+
+source bin/helpers/output.sh
+source bin/helpers/functions.sh
+
+DIR_BUILD="build/package"
+mkdir -p $DIR_BUILD
+PACKAGE_FILE="${DIR_BUILD}/Mysterium.framework.zip"
+DIR_TEMP=`mktemp -d ${DIR_BUILD}/${tempname}.XXXXXX`
+DIR_FRAMEWORK="${DIR_TEMP}/Mysterium.framework"
+
+docker run --rm \
+    -v "$PWD"/$DIR_TEMP:/build \
+    -v "$GOPATH"/.xgo-cache:/deps-cache:ro \
+    -v "$GOPATH"/src:/ext-go/1/src:ro \
+    -e OUT=Mysterium \
+    -e FLAG_V=false \
+    -e FLAG_X=false \
+    -e FLAG_RACE=false \
+    -e FLAG_TAGS=ios \
+    -e FLAG_LDFLAGS="-w -s $(get_linker_ldflags)" \
+    -e FLAG_BUILDMODE=default \
+    -e TARGETS=ios/. \
+    -e EXT_GOPATH=/ext-go/1 \
+    -e GO111MODULE=off \
+    mysteriumnetwork/xgo:1.13.1 github.com/mysteriumnetwork/node/mobile/mysterium
+
+me=`whoami`
+sudo chown -R $me ${DIR_FRAMEWORK}
+cp -vp bin/package/ios/Info.plist ${DIR_FRAMEWORK}/Versions/A/Resources/Info.plist
+
+(cd ${DIR_TEMP} && zip -r - .) > ${PACKAGE_FILE}
+rm -rf ${DIR_TEMP}
+
+print_success "iOS package '$PACKAGE_FILE' complete!"

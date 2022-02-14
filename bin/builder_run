@@ -1,0 +1,27 @@
+#!/bin/bash
+
+###########################################################################
+# Packaging script which creates Debian package using builder image
+#
+# Requirements:
+#    docker
+#    mysteriumnetwork/mysterium-node-builder docker image
+#
+#
+# To execute :
+#> bin/builder_run some_command_to_execute
+
+# Usage:
+#> bin/builder_run pwd
+#> bin/builder_run bin/package_all <version>
+#> bin/builder_run bin/build; bin/package_debian 0.0.1 amd64
+
+COMMAND=$@
+if [ -z "$COMMAND" ]; then
+    printf "\e[0;31m%s\e[0m\n" "Missing command!"
+    exit 1
+fi
+
+docker run --rm -ti \
+    -v $(pwd):/go/src/github.com/mysteriumnetwork/node \
+    mysteriumnetwork/mysterium-node-builder "${COMMAND}"

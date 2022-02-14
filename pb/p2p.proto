@@ -1,0 +1,36 @@
+syntax = "proto3";
+package pb;
+
+option go_package = ".;pb";
+
+message P2PSignedMsg {
+    bytes data = 1; // Holds data of P2PConfigExchange.
+    bytes signature = 2; // Signature of data field.
+}
+
+message P2PConfigExchangeMsg {
+    string publicKey = 1; // Public key field which is send from both provider and consumer.
+    bytes configCiphertext = 2; // Encrypted P2PConnectConfig data.
+}
+
+message P2PConnectConfig {
+    string publicIP = 1;
+    repeated int32 ports = 2;
+    int32 compatibility = 3;
+}
+
+message P2PKeepAlivePing {
+    string sessionID = 1;
+}
+
+message P2PChannelHandlersReady {
+    string value = 1;
+}
+
+message P2PChannelEnvelope {
+	uint64 ID = 1;
+	uint64 statusCode = 2;
+	string topic = 3;
+	string msg = 4;
+	bytes data = 5;
+}

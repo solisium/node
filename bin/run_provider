@@ -1,0 +1,11 @@
+#!/bin/bash
+
+sudo ./bin/run \
+    --data-dir=./build/myst/provider \
+    --runtime-dir=./build/myst/provider \
+    --tequilapi.address=127.0.0.1 \
+    --tequilapi.port=4052 \
+    --keystore.lightweight \
+    --localnet \
+    service --agreed-terms-and-conditions \
+    $@
